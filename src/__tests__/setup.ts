@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { pool } from '../db';  // Import your pool if you're using one in your app
+import { pool } from '../db'; 
 
 let client: Client;
 

@@ -180,5 +180,3 @@ To create standalone executables for different platforms:
    ```
 
 This will create standalone executables for Linux, macOS, and Windows in the `bin` directory. Run the appropriate binary for your system.
-
-For detailed API documentation and advanced usage, please refer to the [API Documentation](link-to-your-api-docs).
