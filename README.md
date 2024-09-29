@@ -1,0 +1,229 @@
+# Subway System API
+
+This project implements a RESTful API for a subway system, allowing for management of train lines, stations, cards, and rides.
+
+## Table of Contents
+
+- [Subway System API](#subway-system-api)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Database Setup](#database-setup)
+  - [Running the Application](#running-the-application)
+  - [Running Tests](#running-tests)
+  - [API Endpoints](#api-endpoints)
+    - [Create a new train line](#create-a-new-train-line)
+    - [Get the optimal route between two stations](#get-the-optimal-route-between-two-stations)
+    - [Create or update a card](#create-or-update-a-card)
+    - [Enter a station](#enter-a-station)
+    - [Exit a station](#exit-a-station)
+  - [Docker Deployment](#docker-deployment)
+  - [Creating Standalone Binaries](#creating-standalone-binaries)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+## Prerequisites
+
+- Node.js (v14 or later)
+- npm (v6 or later)
+- Docker and Docker Compose
+- PostgreSQL (v13 or later, if not using Docker)
+
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/subway-system.git
+   cd subway-system
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+## Database Setup
+
+This project uses Docker Compose to set up the databases. The `docker-compose.yml` file defines two PostgreSQL services:
+
+1. `db`: The main application database
+   - Database Name: `subway_system`
+   - Port: 5432
+
+2. `test_db`: The test database
+   - Database Name: `subway_system_test`
+   - Port: 5433
+
+To set up the databases:
+
+1. Ensure Docker and Docker Compose are installed on your system.
+
+2. From the project root, run:
+   ```
+   docker-compose up -d
+   ```
+
+This command will create and start both database services.
+
+## Running the Application
+
+1. Start the server in development mode:
+   ```
+   npm run dev
+   ```
+
+2. For production, build and start:
+   ```
+   npm run build
+   npm start
+   ```
+
+The server will start on `http://localhost:3000` (or the port specified in your environment).
+
+## Running Tests
+
+To run the tests:
+
+```
+npm test
+```
+
+This will:
+1. Connect to the `subway_system_test` database
+2. Set up the necessary tables for testing
+3. Run the tests
+4. Clean up the test database after tests complete
+
+Note: Ensure the Docker Compose services are running before executing tests.
+
+## API Endpoints
+
+### Create a new train line
+- **POST** `/train-line`
+- **Body**:
+  ```json
+  {
+    "name": "Blue Line",
+    "stations": ["Station A", "Station B", "Station C"],
+    "fare": 2.50
+  }
+  ```
+- **Sample curl request**:
+  ```
+  curl -X POST http://localhost:3000/train-line \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Blue Line","stations":["Station A","Station B","Station C"],"fare":2.50}'
+  ```
+
+### Get the optimal route between two stations
+- **GET** `/route?origin=Station%20A&destination=Station%20C`
+- **Sample curl request**:
+  ```
+  curl "http://localhost:3000/route?origin=Station%20A&destination=Station%20C"
+  ```
+
+### Create or update a card
+- **POST** `/card`
+- **Body**:
+  ```json
+  {
+    "number": "1234567890",
+    "amount": 50.00
+  }
+  ```
+- **Sample curl request**:
+  ```
+  curl -X POST http://localhost:3000/card \
+  -H "Content-Type: application/json" \
+  -d '{"number":"1234567890","amount":50.00}'
+  ```
+
+### Enter a station
+- **POST** `/station/:station/enter`
+- **Body**:
+  ```json
+  {
+    "card_number": "1234567890"
+  }
+  ```
+- **Sample curl request**:
+  ```
+  curl -X POST http://localhost:3000/station/Station%20A/enter \
+  -H "Content-Type: application/json" \
+  -d '{"card_number":"1234567890"}'
+  ```
+
+### Exit a station
+- **POST** `/station/:station/exit`
+- **Body**:
+  ```json
+  {
+    "card_number": "1234567890"
+  }
+  ```
+- **Sample curl request**:
+  ```
+  curl -X POST http://localhost:3000/station/Station%20B/exit \
+  -H "Content-Type: application/json" \
+  -d '{"card_number":"1234567890"}'
+  ```
+
+## Docker Deployment
+
+To deploy the entire application (including databases) using Docker:
+
+1. Build the application Docker image:
+   ```
+   docker build -t subway-system .
+   ```
+
+2. Run the entire stack:
+   ```
+   docker-compose up -d
+   ```
+
+This will start the PostgreSQL databases and your application.
+
+## Creating Standalone Binaries
+
+To create standalone binaries for different platforms:
+
+1. Install `pkg` globally:
+   ```
+   npm install -g pkg
+   ```
+
+2. Add the following to your `package.json`:
+   ```json
+   "bin": "dist/server.js",
+   "pkg": {
+     "assets": [
+       "dist/**/*"
+     ],
+     "targets": [
+       "node14-linux-x64",
+       "node14-macos-x64",
+       "node14-win-x64"
+     ]
+   }
+   ```
+
+3. Build your TypeScript project:
+   ```
+   npm run build
+   ```
+
+4. Generate the binaries:
+   ```
+   pkg .
+   ```
+
+This will create standalone executables for Linux, macOS, and Windows in your project directory.
+
+## Contributing
+
+Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
