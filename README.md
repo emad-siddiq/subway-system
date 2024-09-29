@@ -19,7 +19,6 @@ This project implements a RESTful API for a subway system, allowing for manageme
     - [Exit a station](#exit-a-station)
   - [Docker Deployment](#docker-deployment)
   - [Creating Standalone Binaries](#creating-standalone-binaries)
-  - [Contributing](#contributing)
   - [License](#license)
 
 ## Prerequisites
@@ -207,10 +206,17 @@ To create standalone binaries for different platforms:
 This will create standalone executables for Linux, macOS, and Windows in a bin directory in your project root.
 Run the binary for your system.
 
-## Contributing
 
-Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
+
+This work is licensed under a
+[Creative Commons Attribution 4.0 International License][cc-by].
+
+[![CC BY 4.0][cc-by-image]][cc-by]
+
+[cc-by]: http://creativecommons.org/licenses/by/4.0/
+[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
+[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
