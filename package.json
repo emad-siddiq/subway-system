@@ -4,10 +4,12 @@
   "main": "index.js",
   "scripts": {
     "init-db": "ts-node src/db/init.ts",
-    "start": "ts-node src/server.ts",
-    "build": "tsc",
-    "dev": "ts-node-dev --respawn src/server.ts",
-    "test": "NODE_ENV=test jest --runInBand"
+    "start": "ts-node -P config/tsconfig.json src/server.ts",
+    "build": "tsc -P config/tsconfig.json",
+    "dev": "ts-node-dev --project config/tsconfig.json --respawn src/server.ts",
+    "test": "NODE_ENV=test jest --config config/jest.config.js --runInBand",
+    "docker:build": "docker build -t subway-system -f docker/Dockerfile .",
+    "docker:run": "docker-compose -f docker/docker-compose.yml up"
   },
   "keywords": [],
   "author": "",
@@ -33,7 +35,8 @@
   "bin": "dist/server.js",
   "pkg": {
     "assets": [
-      "dist/**/*"
+      "dist/**/*",
+      "config/**/*"
     ],
     "targets": [
       "node14-linux-x64",
@@ -41,6 +44,4 @@
       "node14-win-x64"
     ]
   }
-
-  
 }

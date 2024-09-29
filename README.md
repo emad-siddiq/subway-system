@@ -1,222 +1,175 @@
+# Subway System Challenge
 
-# Subway System API
-
-This project implements a RESTful API for a subway system, allowing for management of train lines, stations, cards, and rides.
-
-## Table of Contents
-
-- [Subway System API](#subway-system-api)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Database Setup](#database-setup)
-  - [Running the Application](#running-the-application)
-  - [Running Tests](#running-tests)
-  - [API Endpoints](#api-endpoints)
-    - [Challenge 1 Endpoints](#challenge-1-endpoints)
-      - [Create a new train line](#create-a-new-train-line)
-      - [Get the optimal route between two stations](#get-the-optimal-route-between-two-stations)
-    - [Challenge 2 Endpoints](#challenge-2-endpoints)
-      - [Create a new train line (with fare)](#create-a-new-train-line-with-fare)
-      - [Create or update a card](#create-or-update-a-card)
-      - [Enter a station](#enter-a-station)
-      - [Exit a station](#exit-a-station)
-  - [Docker Deployment](#docker-deployment)
-  - [Creating Standalone Binaries](#creating-standalone-binaries)
-  - [License](#license)
+This project implements a RESTful API for a subway system, addressing two main challenges: route planning and fare management.
 
 ## Prerequisites
-
-- Node.js (v14 or later)
-- npm (v6 or later)
+- Node.js (v16+)
 - Docker and Docker Compose
-- PostgreSQL (v13 or later, if not using Docker)
 
-## Installation
-
-1. Clone the repository:
+## Quick Start
+1. Clone and install:
    ```
-   git clone https://github.com/yourusername/subway-system.git
+   git clone https://github.com/emad-siddiq/subway-system.git
    cd subway-system
-   ```
-
-2. Install dependencies:
-   ```
    npm install
    ```
 
-## Database Setup
-
-This project uses Docker Compose to set up the databases. The `docker-compose.yml` file defines two PostgreSQL services:
-
-1. `db`: The main application database
-   - Database Name: `subway_system`
-   - Port: 5432
-
-2. `test_db`: The test database
-   - Database Name: `subway_system_test`
-   - Port: 5433
-
-To set up the databases:
-
-1. Ensure Docker and Docker Compose are installed on your system.
-
-2. From the project root, run:
+2. Start the database:
    ```
-   docker-compose up -d
+   docker-compose -f docker/docker-compose.yml up -d
    ```
 
-This command will create and start both database services.
+3. Run the application:
+   - Development: `npm run dev`
+   - Production: `npm run build && npm start`
 
-## Running the Application
+Server runs on `http://localhost:3000`
 
-1. Start the server in development mode:
-   ```
-   npm run dev
-   ```
+## Testing
+Run tests: `npm test`
 
-2. For production, build and start:
-   ```
-   npm run build
-   npm start
-   ```
+## Challenge 1: Route Planning
 
-The server will start on `http://localhost:3000` (or the port specified in your environment).
-
-## Running Tests
-
-To run the tests:
-
-```
-npm test
+### Create a Train Line
+```bash
+curl -X POST http://localhost:3000/train-line \
+  -H "Content-Type: application/json" \
+  -d '{"name": "1", "stations": ["Canal", "Houston", "Christopher", "14th"]}'
 ```
 
-This will:
-1. Connect to the `subway_system_test` database
-2. Set up the necessary tables for testing
-3. Run the tests
-4. Clean up the test database after tests complete
-
-Note: Ensure the Docker Compose services are running before executing tests.
-
-## API Endpoints
-
-### Challenge 1 Endpoints
-
-#### Create a new train line
-- **POST** `/train-line`
-- **Body**:
-  ```json
-  {
-    "name": "Blue Line",
-    "stations": ["Station A", "Station B", "Station C"]
-  }
-  ```
-- **Sample curl request**:
-  ```
-  curl -X POST http://localhost:3000/train-line \
+```bash
+curl -X POST http://localhost:3000/train-line \
   -H "Content-Type: application/json" \
-  -d '{"name":"Blue Line","stations":["Station A","Station B","Station C"]}'
-  ```
+  -d '{"name": "E", "stations": ["Spring", "West 4th", "14th", "23rd"]}'
+```
 
-#### Get the optimal route between two stations
-- **GET** `/route?origin=Station%20A&destination=Station%20C`
-- **Sample curl request**:
-  ```
-  curl "http://localhost:3000/route?origin=Station%20A&destination=Station%20C"
-  ```
+### Get Optimal Route
+```bash
+curl "http://localhost:3000/route?origin=Houston&destination=23rd"
+```
 
-### Challenge 2 Endpoints
+Expected response:
+```json
+{
+  "route": ["Houston", "Christopher", "14th", "23rd"]
+}
+```
 
-#### Create a new train line (with fare)
-- **POST** `/train-line`
-- **Body**:
-  ```json
-  {
-    "name": "Blue Line",
-    "stations": ["Station A", "Station B", "Station C"],
-    "fare": 2.75
-  }
-  ```
-- **Sample curl request**:
-  ```
-  curl -X POST http://localhost:3000/train-line \
+This demonstrates finding the optimal route across multiple train lines.
+
+## Challenge 2: Fare Management
+
+### Create a Train Line with Fare
+```bash
+curl -X POST http://localhost:3000/train-line \
   -H "Content-Type: application/json" \
-  -d '{"name":"Blue Line","stations":["Station A","Station B","Station C"],"fare":2.75}'
-  ```
+  -d '{"name": "A", "stations": ["Canal", "Houston", "West 4th", "14th"], "fare": 2.75}'
+```
 
-#### Create or update a card
-- **POST** `/card`
-- **Body**:
-  ```json
-  {
-    "number": "1234567890",
-    "amount": 50.00
-  }
-  ```
-- **Sample curl request**:
-  ```
-  curl -X POST http://localhost:3000/card \
+### Create or Update Card
+```bash
+curl -X POST http://localhost:3000/card \
   -H "Content-Type: application/json" \
-  -d '{"number":"1234567890","amount":50.00}'
-  ```
+  -d '{"number": "1234", "amount": 20.00}'
+```
 
-#### Enter a station
-- **POST** `/station/:station/enter`
-- **Body**:
-  ```json
-  {
-    "card_number": "1234567890"
-  }
-  ```
-- **Sample curl request**:
-  ```
-  curl -X POST http://localhost:3000/station/Station%20A/enter \
+```bash
+# Add more money to an existing card
+curl -X POST http://localhost:3000/card \
   -H "Content-Type: application/json" \
-  -d '{"card_number":"1234567890"}'
-  ```
+  -d '{"number": "1234", "amount": 10.00}'
+```
 
-#### Exit a station
-- **POST** `/station/:station/exit`
-- **Body**:
-  ```json
-  {
-    "card_number": "1234567890"
-  }
-  ```
-- **Sample curl request**:
-  ```
-  curl -X POST http://localhost:3000/station/Station%20B/exit \
+### Enter Station
+```bash
+curl -X POST http://localhost:3000/station/Houston/enter \
   -H "Content-Type: application/json" \
-  -d '{"card_number":"1234567890"}'
-  ```
+  -d '{"card_number": "1234"}'
+```
 
-## Docker Deployment
+Expected response:
+```json
+{
+  "amount": 27.25
+}
+```
 
-To deploy the entire application (including databases) using Docker:
+### Exit Station
+```bash
+curl -X POST http://localhost:3000/station/14th/exit \
+  -H "Content-Type: application/json" \
+  -d '{"card_number": "1234"}'
+```
 
-1. Build the application Docker image:
-   ```
-   docker build -t subway-system .
+Expected response:
+```json
+{
+  "amount": 27.25
+}
+```
+
+Note: The amount remains the same as the fare is deducted upon entering the station.
+
+### Example Scenario
+1. Create two train lines:
+   ```bash
+   curl -X POST http://localhost:3000/train-line \
+     -H "Content-Type: application/json" \
+     -d '{"name": "1", "stations": ["Canal", "Houston", "Christopher", "14th"], "fare": 2.75}'
+   
+   curl -X POST http://localhost:3000/train-line \
+     -H "Content-Type: application/json" \
+     -d '{"name": "E", "stations": ["Spring", "West 4th", "14th", "23rd"], "fare": 3.00}'
    ```
 
-2. Run the entire stack:
-   ```
-   docker-compose up -d
+2. Create a card:
+   ```bash
+   curl -X POST http://localhost:3000/card \
+     -H "Content-Type: application/json" \
+     -d '{"number": "5678", "amount": 50.00}'
    ```
 
-This will start the PostgreSQL databases and your application.
+3. Enter and exit stations:
+   ```bash
+   curl -X POST http://localhost:3000/station/Houston/enter \
+     -H "Content-Type: application/json" \
+     -d '{"card_number": "5678"}'
+   
+   curl -X POST http://localhost:3000/station/23rd/exit \
+     -H "Content-Type: application/json" \
+     -d '{"card_number": "5678"}'
+   ```
+
+   This scenario demonstrates entering on one line and exiting on another, showing the system can handle transfers between lines.
+
+## Implementation Details
+
+- Language: TypeScript
+- Database: PostgreSQL
+- Containerization: Docker
+
+## Project Structure
+```
+.
+├── config/
+├── docker/
+├── src/
+│   ├── db/
+│   └── server.ts
+├── package.json
+└── README.md
+```
 
 ## Creating Standalone Binaries
 
-To create standalone binaries for different platforms:
+To create standalone executables for different platforms:
 
 1. Install `pkg` globally:
    ```
    npm install -g pkg
    ```
 
-2. Build your TypeScript project:
+2. Build the TypeScript project:
    ```
    npm run build
    ```
@@ -226,19 +179,6 @@ To create standalone binaries for different platforms:
    pkg . --out-path=./bin
    ```
 
-This will create standalone executables for Linux, macOS, and Windows in a bin directory in your project root.
-Run the binary for your system.
+This will create standalone executables for Linux, macOS, and Windows in the `bin` directory. Run the appropriate binary for your system.
 
-## License
-
-Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
-
-This work is licensed under a
-[Creative Commons Attribution 4.0 International License][cc-by].
-
-[![CC BY 4.0][cc-by-image]][cc-by]
-
-[cc-by]: http://creativecommons.org/licenses/by/4.0/
-[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
-[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
-
+For detailed API documentation and advanced usage, please refer to the [API Documentation](link-to-your-api-docs).
