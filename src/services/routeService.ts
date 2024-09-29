@@ -11,7 +11,7 @@ interface Connection {
 }
 
 export const getRoute = async (origin: string, destination: string): Promise<string[]> => {
-  const pool: Pool = new Pool(); // Assuming you're using a pg Pool
+  const pool: Pool = new Pool(); 
   const client: PoolClient = await pool.connect();
   try {
     // Fetch all stations and connections
