@@ -193,27 +193,13 @@ To create standalone binaries for different platforms:
    npm install -g pkg
    ```
 
-2. Add the following to your `package.json`:
-   ```json
-   "bin": "dist/server.js",
-   "pkg": {
-     "assets": [
-       "dist/**/*"
-     ],
-     "targets": [
-       "node14-linux-x64",
-       "node14-macos-x64",
-       "node14-win-x64"
-     ]
-   }
-   ```
 
-3. Build your TypeScript project:
+2. Build your TypeScript project:
    ```
    npm run build
    ```
 
-4. Generate the binaries:
+3. Generate the binaries:
    ```
    pkg . --out-path=./bin
    ```
