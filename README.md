@@ -215,10 +215,11 @@ To create standalone binaries for different platforms:
 
 4. Generate the binaries:
    ```
-   pkg .
+   pkg . --out-path=./bin
    ```
 
-This will create standalone executables for Linux, macOS, and Windows in your project directory.
+This will create standalone executables for Linux, macOS, and Windows in a bin directory in your project root.
+Run the binary for your system.
 
 ## Contributing
 
