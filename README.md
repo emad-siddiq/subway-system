@@ -1,3 +1,4 @@
+
 # Subway System API
 
 This project implements a RESTful API for a subway system, allowing for management of train lines, stations, cards, and rides.
@@ -12,11 +13,14 @@ This project implements a RESTful API for a subway system, allowing for manageme
   - [Running the Application](#running-the-application)
   - [Running Tests](#running-tests)
   - [API Endpoints](#api-endpoints)
-    - [Create a new train line](#create-a-new-train-line)
-    - [Get the optimal route between two stations](#get-the-optimal-route-between-two-stations)
-    - [Create or update a card](#create-or-update-a-card)
-    - [Enter a station](#enter-a-station)
-    - [Exit a station](#exit-a-station)
+    - [Challenge 1 Endpoints](#challenge-1-endpoints)
+      - [Create a new train line](#create-a-new-train-line)
+      - [Get the optimal route between two stations](#get-the-optimal-route-between-two-stations)
+    - [Challenge 2 Endpoints](#challenge-2-endpoints)
+      - [Create a new train line (with fare)](#create-a-new-train-line-with-fare)
+      - [Create or update a card](#create-or-update-a-card)
+      - [Enter a station](#enter-a-station)
+      - [Exit a station](#exit-a-station)
   - [Docker Deployment](#docker-deployment)
   - [Creating Standalone Binaries](#creating-standalone-binaries)
   - [License](#license)
@@ -97,31 +101,51 @@ Note: Ensure the Docker Compose services are running before executing tests.
 
 ## API Endpoints
 
-### Create a new train line
+### Challenge 1 Endpoints
+
+#### Create a new train line
 - **POST** `/train-line`
 - **Body**:
   ```json
   {
     "name": "Blue Line",
-    "stations": ["Station A", "Station B", "Station C"],
-    "fare": 2.50
+    "stations": ["Station A", "Station B", "Station C"]
   }
   ```
 - **Sample curl request**:
   ```
   curl -X POST http://localhost:3000/train-line \
   -H "Content-Type: application/json" \
-  -d '{"name":"Blue Line","stations":["Station A","Station B","Station C"],"fare":2.50}'
+  -d '{"name":"Blue Line","stations":["Station A","Station B","Station C"]}'
   ```
 
-### Get the optimal route between two stations
+#### Get the optimal route between two stations
 - **GET** `/route?origin=Station%20A&destination=Station%20C`
 - **Sample curl request**:
   ```
   curl "http://localhost:3000/route?origin=Station%20A&destination=Station%20C"
   ```
 
-### Create or update a card
+### Challenge 2 Endpoints
+
+#### Create a new train line (with fare)
+- **POST** `/train-line`
+- **Body**:
+  ```json
+  {
+    "name": "Blue Line",
+    "stations": ["Station A", "Station B", "Station C"],
+    "fare": 2.75
+  }
+  ```
+- **Sample curl request**:
+  ```
+  curl -X POST http://localhost:3000/train-line \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Blue Line","stations":["Station A","Station B","Station C"],"fare":2.75}'
+  ```
+
+#### Create or update a card
 - **POST** `/card`
 - **Body**:
   ```json
@@ -137,7 +161,7 @@ Note: Ensure the Docker Compose services are running before executing tests.
   -d '{"number":"1234567890","amount":50.00}'
   ```
 
-### Enter a station
+#### Enter a station
 - **POST** `/station/:station/enter`
 - **Body**:
   ```json
@@ -152,7 +176,7 @@ Note: Ensure the Docker Compose services are running before executing tests.
   -d '{"card_number":"1234567890"}'
   ```
 
-### Exit a station
+#### Exit a station
 - **POST** `/station/:station/exit`
 - **Body**:
   ```json
@@ -192,7 +216,6 @@ To create standalone binaries for different platforms:
    npm install -g pkg
    ```
 
-
 2. Build your TypeScript project:
    ```
    npm run build
@@ -206,8 +229,6 @@ To create standalone binaries for different platforms:
 This will create standalone executables for Linux, macOS, and Windows in a bin directory in your project root.
 Run the binary for your system.
 
-
-
 ## License
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
@@ -220,3 +241,4 @@ This work is licensed under a
 [cc-by]: http://creativecommons.org/licenses/by/4.0/
 [cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
 [cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
+
