@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { pool } from '../db';
 
 export const getRouteHandler = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -29,7 +30,7 @@ export const getRouteHandler = async (req: Request, res: Response): Promise<void
 };
 
 const getRoute = async (origin: string, destination: string): Promise<string[]> => {
-  const client: PoolClient = await pool.connect();
+  const client = await pool.connect();
   try {
     // Fetch origin and destination station IDs directly from the database
     const { rows: originResult } = await client.query<{ id: number }>(
@@ -49,7 +50,7 @@ const getRoute = async (origin: string, destination: string): Promise<string[]> 
     const destinationId = destinationResult[0].id;
 
     // Fetch all connections in the system (stations that share train lines)
-    const connectionsResult = await client.query<Connection>(`
+    const connectionsResult = await client.query(`
       SELECT tls1.station_id as from_id, tls2.station_id as to_id
       FROM train_line_stations tls1
       JOIN train_line_stations tls2 ON tls1.train_line_id = tls2.train_line_id
