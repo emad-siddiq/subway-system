@@ -22,6 +22,7 @@ This project implements a RESTful API for a subway system, addressing two main c
 
 3. The server will be running on `http://localhost:3000`
 
+
 ## Development Mode
 To run the application in development mode:
 
@@ -76,49 +77,82 @@ The application uses the following environment variables:
 
 These can be set in the `docker-compose.yml` file or as environment variables when running the application.
 
-## Challenge 1: Route Planning
+## Endpoints
 
-### Create a Train Line
-```bash
-curl -X POST http://localhost:3000/train-line \
-  -H "Content-Type: application/json" \
-  -d '{"name": "1", "stations": ["Canal", "Houston", "Christopher", "14th"]}'
-```
+# Subway System API
 
-### Get Optimal Route
-```bash
-curl "http://localhost:3000/route?origin=Houston&destination=23rd"
-```
+## 1. Create a Train Line
+- **POST** `/train-line`
+- Body:
+  ```json
+  {
+    "name": string,
+    "stations": string[],
+    "fare": number (optional)
+  }
+  ```
+- Example:
+  ```bash
+  curl -X POST http://localhost:3000/train-line \
+    -H "Content-Type: application/json" \
+    -d '{"name": "1", "stations": ["Canal", "Houston", "Christopher", "14th"]}'
+  ```
 
-## Challenge 2: Fare Management
+## 2. Get Optimal Route
+- **GET** `/route`
+- Query params: `origin` (string), `destination` (string)
+- Example:
+  ```bash
+  curl "http://localhost:3000/route?origin=Houston&destination=23rd"
+  ```
 
-### Create a Train Line with Fare
-```bash
-curl -X POST http://localhost:3000/train-line \
-  -H "Content-Type: application/json" \
-  -d '{"name": "A", "stations": ["Canal", "Houston", "West 4th", "14th"], "fare": 2.75}'
-```
+## 3. Create or Update Card
+- **POST** `/card`
+- Body:
+  ```json
+  {
+    "number": string,
+    "amount": number
+  }
+  ```
+- Example:
+  ```bash
+  curl -X POST http://localhost:3000/card \
+    -H "Content-Type: application/json" \
+    -d '{"number": "1234", "amount": 20.00}'
+  ```
 
-### Create or Update Card
-```bash
-curl -X POST http://localhost:3000/card \
-  -H "Content-Type: application/json" \
-  -d '{"number": "1234", "amount": 20.00}'
-```
+## 4. Enter Station
+- **POST** `/station/{station_name}/enter`
+- Body:
+  ```json
+  {
+    "card_number": string
+  }
+  ```
+- Example:
+  ```bash
+  curl -X POST http://localhost:3000/station/Houston/enter \
+    -H "Content-Type: application/json" \
+    -d '{"card_number": "1234"}'
+  ```
 
-### Enter Station
-```bash
-curl -X POST http://localhost:3000/station/Houston/enter \
-  -H "Content-Type: application/json" \
-  -d '{"card_number": "1234"}'
-```
+## 5. Exit Station
+- **POST** `/station/{station_name}/exit`
+- Body:
+  ```json
+  {
+    "card_number": string
+  }
+  ```
+- Example:
+  ```bash
+  curl -X POST http://localhost:3000/station/14th/exit \
+    -H "Content-Type: application/json" \
+    -d '{"card_number": "1234"}'
+  ```
 
-### Exit Station
-```bash
-curl -X POST http://localhost:3000/station/14th/exit \
-  -H "Content-Type: application/json" \
-  -d '{"card_number": "1234"}'
-```
+Note: The server is assumed to be running on `http://localhost:3000`. Adjust the URL in the examples if your server is running on a different address or port.
 
 ## Implementation Details
 
