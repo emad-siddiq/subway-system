@@ -3,30 +3,78 @@
 This project implements a RESTful API for a subway system, addressing two main challenges: route planning and fare management.
 
 ## Prerequisites
-- Node.js (v16+)
+- Node.js (v14+)
 - Docker and Docker Compose
 
 ## Quick Start
-1. Clone and install:
+1. Clone the repository:
    ```
    git clone https://github.com/emad-siddiq/subway-system.git
    cd subway-system
-   npm install
    ```
 
-2. Start the database:
+2. Build and start the application using Docker:
    ```
-   docker-compose -f docker/docker-compose.yml up -d
+   docker-compose up --build
    ```
 
-3. Run the application:
-   - Development: `npm run dev`
-   - Production: `npm run build && npm start`
+   This will start both the backend service and the PostgreSQL database.
 
-Server runs on `http://localhost:3000`
+3. The server will be running on `http://localhost:3000`
+
+## Development Mode
+To run the application in development mode:
+
+```
+NODE_ENV=development docker-compose up
+```
+
+This will start the application using `ts-node-dev`, which will watch for file changes and automatically restart the server.
 
 ## Testing
-Run tests: `npm test`
+Run tests:
+```
+npm test
+```
+
+## Uninstall
+
+To stop the application and remove the containers, volumes, and images:
+
+```
+docker-compose down -v --rmi all
+```
+
+## Project Structure
+```
+.
+├── src/
+│   ├── controllers/
+│   ├── db/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   └── server.ts
+├── docker-compose.yml
+├── Dockerfile
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## Environment Variables
+The application uses the following environment variables:
+
+- `NODE_ENV`: Set to 'development' or 'production'
+- `DB_HOST`: Database host (default: 'db')
+- `DB_USER`: Database user (default: 'user')
+- `DB_PASSWORD`: Database password (default: 'password')
+- `DB_NAME`: Database name (default: 'subway_system')
+- `DB_NAME_TEST`: Test database name (default: 'subway_system_test')
+- `DB_PORT`: Database port (default: 5432)
+- `DB_PORT_TEST`: Test database port (default: 5433)
+
+These can be set in the `docker-compose.yml` file or as environment variables when running the application.
 
 ## Challenge 1: Route Planning
 
@@ -37,25 +85,10 @@ curl -X POST http://localhost:3000/train-line \
   -d '{"name": "1", "stations": ["Canal", "Houston", "Christopher", "14th"]}'
 ```
 
-```bash
-curl -X POST http://localhost:3000/train-line \
-  -H "Content-Type: application/json" \
-  -d '{"name": "E", "stations": ["Spring", "West 4th", "14th", "23rd"]}'
-```
-
 ### Get Optimal Route
 ```bash
 curl "http://localhost:3000/route?origin=Houston&destination=23rd"
 ```
-
-Expected response:
-```json
-{
-  "route": ["Houston", "Christopher", "14th", "23rd"]
-}
-```
-
-This demonstrates finding the optimal route across multiple train lines.
 
 ## Challenge 2: Fare Management
 
@@ -73,25 +106,11 @@ curl -X POST http://localhost:3000/card \
   -d '{"number": "1234", "amount": 20.00}'
 ```
 
-```bash
-# Add more money to an existing card
-curl -X POST http://localhost:3000/card \
-  -H "Content-Type: application/json" \
-  -d '{"number": "1234", "amount": 10.00}'
-```
-
 ### Enter Station
 ```bash
 curl -X POST http://localhost:3000/station/Houston/enter \
   -H "Content-Type: application/json" \
   -d '{"card_number": "1234"}'
-```
-
-Expected response:
-```json
-{
-  "amount": 27.25
-}
 ```
 
 ### Exit Station
@@ -101,64 +120,11 @@ curl -X POST http://localhost:3000/station/14th/exit \
   -d '{"card_number": "1234"}'
 ```
 
-Expected response:
-```json
-{
-  "amount": 27.25
-}
-```
-
-Note: The amount remains the same as the fare is deducted upon entering the station.
-
-### Example Scenario
-1. Create two train lines:
-   ```bash
-   curl -X POST http://localhost:3000/train-line \
-     -H "Content-Type: application/json" \
-     -d '{"name": "1", "stations": ["Canal", "Houston", "Christopher", "14th"], "fare": 2.75}'
-   
-   curl -X POST http://localhost:3000/train-line \
-     -H "Content-Type: application/json" \
-     -d '{"name": "E", "stations": ["Spring", "West 4th", "14th", "23rd"], "fare": 3.00}'
-   ```
-
-2. Create a card:
-   ```bash
-   curl -X POST http://localhost:3000/card \
-     -H "Content-Type: application/json" \
-     -d '{"number": "5678", "amount": 50.00}'
-   ```
-
-3. Enter and exit stations:
-   ```bash
-   curl -X POST http://localhost:3000/station/Houston/enter \
-     -H "Content-Type: application/json" \
-     -d '{"card_number": "5678"}'
-   
-   curl -X POST http://localhost:3000/station/23rd/exit \
-     -H "Content-Type: application/json" \
-     -d '{"card_number": "5678"}'
-   ```
-
-   This scenario demonstrates entering on one line and exiting on another, showing the system can handle transfers between lines.
-
 ## Implementation Details
 
 - Language: TypeScript
 - Database: PostgreSQL
 - Containerization: Docker
-
-## Project Structure
-```
-.
-├── config/
-├── docker/
-├── src/
-│   ├── db/
-│   └── server.ts
-├── package.json
-└── README.md
-```
 
 ## Creating Standalone Binaries
 
@@ -180,3 +146,5 @@ To create standalone executables for different platforms:
    ```
 
 This will create standalone executables for Linux, macOS, and Windows in the `bin` directory. Run the appropriate binary for your system.
+
+Note: When running the standalone binary, you'll need to ensure that a PostgreSQL database is available and the correct environment variables are set for the database connection.

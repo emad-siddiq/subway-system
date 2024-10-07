@@ -4,12 +4,12 @@
   "main": "index.js",
   "scripts": {
     "init-db": "ts-node src/db/init.ts",
-    "start": "ts-node -P config/tsconfig.json src/server.ts",
-    "build": "tsc -P config/tsconfig.json",
-    "dev": "ts-node-dev --project config/tsconfig.json --respawn src/server.ts",
-    "test": "NODE_ENV=test jest --config config/jest.config.js --runInBand",
-    "docker:build": "docker build -t subway-system -f docker/Dockerfile .",
-    "docker:run": "docker-compose -f docker/docker-compose.yml up"
+    "start": "node dist/server.js",
+    "build": "tsc -P tsconfig.json",
+    "dev": "ts-node-dev --project tsconfig.json --respawn src/server.ts",
+    "test": "NODE_ENV=test TEST_DB_HOST=localhost TEST_DB_PORT=5433 jest --config src/config/jest.config.js --runInBand",
+    "docker:build": "docker build -t subway-system .",
+    "docker:run": "docker-compose up"
   },
   "keywords": [],
   "author": "",

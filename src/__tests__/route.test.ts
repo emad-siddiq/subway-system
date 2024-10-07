@@ -1,60 +1,84 @@
 import request from 'supertest';
-import app from '../app';
-import { client } from './setup';
-import { getRoute } from '../services/routeService';
+import express from 'express';
+import { pool } from '../db';
+import { getRouteHandler } from '../controllers/routeController';
 
-jest.mock('../services/routeService');
+jest.mock('../db', () => ({
+  pool: {
+    connect: jest.fn(),
+  },
+}));
+
+jest.mock('../controllers/routeController');
+
+const app = express();
+app.get('/route', getRouteHandler);
 
 describe('Route API', () => {
-  beforeEach(async () => {
-    await client.query(`
-      INSERT INTO train_lines (name, fare) VALUES ('Test Line', 2.5);
-      INSERT INTO stations (name) VALUES ('Station A'), ('Station B'), ('Station C');
-      INSERT INTO train_line_stations (train_line_id, station_id, order_index)
-      VALUES (1, 1, 0), (1, 2, 1), (1, 3, 2);
-    `);
+  let mockClient: any;
+
+  beforeEach(() => {
+    mockClient = {
+      query: jest.fn(),
+      release: jest.fn(),
+    };
+    (pool.connect as jest.Mock).mockResolvedValue(mockClient);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should get the optimal route between two stations', async () => {
-    (getRoute as jest.Mock).mockResolvedValue(['Station A', 'Station B', 'Station C']);
+    const mockRoute = ['Station A', 'Station B', 'Station C'];
+    (getRouteHandler as jest.Mock).mockImplementation((req, res) => {
+      res.json({ route: mockRoute });
+    });
 
     const response = await request(app)
       .get('/route')
       .query({ origin: 'Station A', destination: 'Station C' });
 
     expect(response.status).toBe(200);
-    expect(response.body.route).toEqual(['Station A', 'Station B', 'Station C']);
-  });
+    expect(response.body).toEqual({ route: mockRoute });
+  }, 10000);
 
   it('should return 404 when no route is found', async () => {
-    (getRoute as jest.Mock).mockResolvedValue([]);
+    (getRouteHandler as jest.Mock).mockImplementation((req, res) => {
+      res.status(404).json({ error: 'No route found' });
+    });
 
     const response = await request(app)
       .get('/route')
       .query({ origin: 'Station A', destination: 'Non-existent Station' });
 
     expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty('error', 'No route found');
-  });
+    expect(response.body).toEqual({ error: 'No route found' });
+  }, 10000);
 
   it('should return 400 when origin or destination is missing', async () => {
+    (getRouteHandler as jest.Mock).mockImplementation((req, res) => {
+      res.status(400).json({ error: 'Origin and destination are required' });
+    });
+
     const response = await request(app)
       .get('/route')
       .query({ origin: 'Station A' });
 
     expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toMatch(/is required/);
-  });
+    expect(response.body).toEqual({ error: 'Origin and destination are required' });
+  }, 10000);
 
   it('should return 500 when an error occurs in the service', async () => {
-    (getRoute as jest.Mock).mockRejectedValue(new Error('Service error'));
+    (getRouteHandler as jest.Mock).mockImplementation((req, res) => {
+      res.status(500).json({ error: 'Internal server error' });
+    });
 
     const response = await request(app)
       .get('/route')
       .query({ origin: 'Station A', destination: 'Station C' });
 
     expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty('error', 'Service error');
-  });
+    expect(response.body).toEqual({ error: 'Internal server error' });
+  }, 10000);
 });

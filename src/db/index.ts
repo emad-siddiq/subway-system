@@ -3,17 +3,14 @@ import { Pool, QueryResult, QueryResultRow } from 'pg';
 const isTest = process.env.NODE_ENV === 'test';
 
 const pool = new Pool({
-  user: 'user',
-  host: 'localhost',
-  database: isTest ? 'subway_system_test' : 'subway_system',
-  password: 'password',
-  port: isTest ? 5433 : 5432,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  user: process.env.DB_USER || 'user',
+  host: isTest ? (process.env.TEST_DB_HOST || 'localhost') : (process.env.DB_HOST || 'db'),
+  database: isTest ? (process.env.TEST_DB_NAME || 'subway_system_test') : (process.env.DB_NAME || 'subway_system'),
+  password: process.env.DB_PASSWORD || 'password',
+  port: isTest ? (parseInt(process.env.TEST_DB_PORT || '5433')) : (parseInt(process.env.DB_PORT || '5432')),
 });
 
-export { pool };
+export {pool};
 
 export const query = async <T extends QueryResultRow = any>(text: string, params?: any[]): Promise<QueryResult<T>> => {
   const client = await pool.connect();
